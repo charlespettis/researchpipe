@@ -1,0 +1,8 @@
+.cache/
+reports/
+.venv/
+__pycache__/
+*.pyc
+.researchpipe.json
+.env
+.env.*

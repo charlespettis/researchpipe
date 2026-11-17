@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Tooling Opportunities</title>
+<style>
+:root{--bg:#fbfaf8;--panel:#fff;--ink:#1d1d1f;--muted:#5f6368;--line:#e4e2dd;--accent:#2f5d8a;--hi:#2e7d4f;--md:#a86b00;--lo:#b3261e;--chip:#f1efe9;--code:#f4f2ee}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141518;--panel:#1c1e22;--ink:#e8e6e1;--muted:#a0a4ab;--line:#2e3137;--accent:#7fb0e0;--hi:#6fcf97;--md:#f2c14e;--lo:#f28b82;--chip:#262930;--code:#22252a}}
+:root[data-theme="dark"]{--bg:#141518;--panel:#1c1e22;--ink:#e8e6e1;--muted:#a0a4ab;--line:#2e3137;--accent:#7fb0e0;--hi:#6fcf97;--md:#f2c14e;--lo:#f28b82;--chip:#262930;--code:#22252a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1060px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 12px}h3{font-size:16px;margin:0}
+a{color:var(--accent)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.pipeline{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0;align-items:center}
+.pipeline span{background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:13px}
+.pipeline i{color:var(--muted);font-style:normal}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{display:inline-block;height:6px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-right:6px}
+.badge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;border:1px solid currentColor}
+.High{color:var(--hi)}.Medium{color:var(--md)}.Low{color:var(--lo)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin:18px 0}
+.card header{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.rank{font-size:13px;color:var(--muted)}
+.verdict{margin:10px 0;padding:10px 12px;background:var(--chip);border-radius:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:720px){.grid2{grid-template-columns:1fr}}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;margin-bottom:2px}
+details{border-top:1px solid var(--line);padding:8px 0}
+details summary{cursor:pointer;display:flex;gap:10px;align-items:center;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸";color:var(--muted);width:10px}
+details[open] summary::before{content:"▾"}
+.stage{font-weight:600;min-width:210px}
+.score{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}
+.body{padding:6px 0 4px 20px}
+ul{margin:4px 0 8px;padding-left:20px}li{margin:2px 0}
+.ev li{font-size:13.5px}
+.note{font-size:13px;color:var(--md)}
+code{background:var(--code);padding:1px 4px;border-radius:4px;font-size:12.5px}
+footer{margin-top:40px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Security Tooling Opportunities</h1>
+<div class="muted">Generated {{ meta.generated }} · topic: <b>{{ meta.topic or "all cs.CR / top-4 security" }}</b> · window {{ meta.since }} → {{ meta.until }} · {{ meta.n_discovered }} papers discovered, {{ meta.n_analyzed }} analyzed · extraction: {{ meta.extraction }}</div>
+
+<div class="pipeline">
+  <span>1 · Research discovery</span><i>→</i><span>2 · Novelty extraction</span><i>→</i><span>3 · Existing-tool gap</span><i>→</i><span>4 · Reproducibility &amp; feasibility</span><i>→</i><span>5 · Ranked opportunities</span>
+</div>
+
+<h2>Ranked opportunities</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>#</th><th>Paper</th><th>Type</th><th>Score</th><th>Novelty</th><th>Gap</th><th>Feasible</th><th>Impact</th><th>Confidence</th></tr></thead>
+<tbody>
+{% for o in opps %}
+<tr>
+<td class="num">{{ loop.index }}</td>
+<td><a href="#opp-{{ loop.index }}">{{ o.paper.title }}</a><div class="muted small">{{ o.paper.venue }} {{ o.paper.year or "" }}</div></td>
+<td class="small">{{ o.opportunity_type }}</td>
+<td class="num"><span class="bar" style="width:{{ (o.opportunity_score*60)|int }}px"></span>{{ "%.2f"|format(o.opportunity_score) }}</td>
+<td class="num">{{ "%.2f"|format(o.novelty.score) }}</td>
+<td class="num">{{ "%.2f"|format(o.gap.score) }}</td>
+<td class="num">{{ "%.2f"|format(o.feasibility.score) }}</td>
+<td class="num">{{ "%.2f"|format(o.impact.score) }}</td>
+<td><span class="badge {{ o.confidence_label }}">{{ o.confidence_label }}</span> <span class="muted small">{{ "%.2f"|format(o.confidence) }}</span></td>
+</tr>
+{% endfor %}
+</tbody></table></div>
+
+{% for o in opps %}
+{% set p = o.paper %}{% set x = o.extraction %}
+<section class="card" id="opp-{{ loop.index }}">
+<header>
+  <div>
+    <div class="rank">#{{ loop.index }} · {{ p.venue }} {{ p.year or "" }}{% if p.authors %} · {{ p.authors[:3]|join(", ") }}{% if p.authors|length > 3 %} et al.{% endif %}{% endif %}</div>
+    <h3>{{ p.title }}</h3>
+    <div class="small">
+      {% if p.url %}<a href="{{ p.url }}">paper</a>{% endif %}
+      {% if p.arxiv_id %} · <a href="https://arxiv.org/abs/{{ p.arxiv_id }}">arXiv:{{ p.arxiv_id }}</a>{% endif %}
+      {% if p.pdf_url %} · <a href="{{ p.pdf_url }}">PDF</a>{% endif %}
+      {% if p.doi %} · <a href="https://doi.org/{{ p.doi }}">DOI</a>{% endif %}
+      {% if p.s2_id %} · <a href="https://www.semanticscholar.org/paper/{{ p.s2_id }}">Semantic Scholar</a>{% endif %}
+    </div>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums">{{ "%.2f"|format(o.opportunity_score) }}</div>
+    <span class="badge {{ o.confidence_label }}">{{ o.confidence_label }} confidence</span>
+  </div>
+</header>
+<div class="verdict"><b>{{ o.opportunity_type }}.</b> {{ x.proposed_tool if x else "" }}</div>
+
+<div class="grid2">
+  <div><div class="label">Background of the problem</div>{{ x.background if x else "" }}</div>
+  <div><div class="label">Limitation of prior work</div>{{ x.prior_limitation if x else "" }}</div>
+  <div><div class="label">What is new</div>{{ x.novel_capability if x else "" }}</div>
+  <div><div class="label">Implication for open-source tooling</div>{{ x.tooling_implication if x else "" }}{% if x and x.target_users %}<div class="muted small">Users: {{ x.target_users|join(", ") }}</div>{% endif %}</div>
+</div>
+
+{% for name, s in [("1 · Discovery", o.discovery), ("2 · Technical novelty", o.novelty), ("3 · Existing-tool gap", o.gap), ("4 · Reproducibility & feasibility", o.feasibility), ("5 · Impact & demand", o.impact)] %}
+<details {% if loop.index in (2,3) %}open{% endif %}>
+<summary><span class="stage">{{ name }}</span><span class="score">score {{ "%.2f"|format(s.score) }} · confidence {{ "%.2f"|format(s.confidence) }}</span></summary>
+<div class="body">
+  <div class="label">Result</div><div>{{ s.summary }}</div>
+  <div class="label" style="margin-top:8px">How it was determined</div>
+  <ul>{% for m in s.method %}<li>{{ m }}</li>{% endfor %}</ul>
+  {% if s.evidence %}<div class="label">Evidence &amp; sources</div>
+  <ul class="ev">{% for e in s.evidence %}<li>{{ e.claim }} <span class="muted">— {% if e.url %}<a href="{{ e.url }}">{{ e.source }}</a>{% else %}{{ e.source }}{% endif %}</span></li>{% endfor %}</ul>{% endif %}
+  {% for n in s.notes %}<div class="note">⚠ {{ n }}</div>{% endfor %}
+</div>
+</details>
+{% endfor %}
+
+<details>
+<summary><span class="stage">Overall confidence</span><span class="score">{{ "%.2f"|format(o.confidence) }} ({{ o.confidence_label }})</span></summary>
+<div class="body small">Weighted mean of stage confidences using the ranking weights ({% for k,v in meta.weights.items() %}{{ k }} {{ v }}{% if not loop.last %}, {% endif %}{% endfor %}). High ≥ 0.65, Medium ≥ 0.45. Confidence measures how well the evidence supports the score, not how good the opportunity is: it drops when the abstract is missing, quotes can't be verified, extraction ran in heuristic mode, or searches failed.</div>
+</details>
+</section>
+{% endfor %}
+
+<h2>Methodology</h2>
+<div class="card small">
+<p><b>1 · Discovery.</b> arXiv API (<code>cat:cs.CR</code>), Semantic Scholar bulk search filtered by venue for USENIX Security, NDSS, IEEE S&amp;P and ACM CCS; abstracts back-filled from USENIX program pages and OpenAlex. Duplicates (preprint + proceedings) merged by normalized title. A keyword prefilter ranks papers by how tool-like they are (system/framework language, quantified results, CVEs, open-source claims; SoK/user-study/theory penalized) and the top {{ meta.n_analyzed }} go forward.</p>
+<p><b>2 · Novelty.</b> {{ meta.extraction_desc }}</p>
+<p><b>3 · Gap.</b> GitHub repository search by arXiv id, system name and capability queries; issue search for demand. Repos are classified as the paper's implementation, established overlapping tools, or loose matches; the gap score follows explicit rules shown in each card.</p>
+<p><b>4 · Feasibility.</b> Security Artifacts registry badges (<a href="https://secartifacts.github.io">secartifacts.github.io</a>), code links, author repo license, public-benchmark use, compute class and solo-developer scope.</p>
+<p><b>5 · Ranking.</b> opportunity = {% for k,v in meta.weights.items() %}{{ v }}·{{ k }}{% if not loop.last %} + {% endif %}{% endfor %}. Every sub-score is shown with its formula so it can be checked by hand.</p>
+<p class="muted">Limitations: decisions are made from abstracts and metadata, not full papers. GitHub search misses tools hosted elsewhere or named differently. Scores rank candidates for human review; they do not replace reading the paper.</p>
+</div>
+<footer>researchpipe · {{ meta.n_analyzed }} opportunities · parameters: <code>{{ meta.argv }}</code></footer>
+</main>
+</body>
+</html>

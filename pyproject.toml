@@ -1,0 +1,21 @@
+[project]
+name = "researchpipe"
+version = "0.1.0"
+description = "Research → novelty → gap → feasibility → ranked open-source security tooling opportunities"
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=2.10.0",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "prompt-toolkit>=3.0.53",
+    "pydantic>=2.14.3",
+    "pyyaml>=6.0.3",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+researchpipe = "researchpipe:main"
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
